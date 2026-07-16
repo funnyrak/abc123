@@ -1,5 +1,5 @@
 import { requireProfile } from '@/lib/auth/dal'
-import { DashboardShell, PlaceholderCard } from '@/components/dashboard-shell'
+import { DashboardShell, LinkCard, PlaceholderCard } from '@/components/dashboard-shell'
 
 export default async function MentorDashboard() {
   const profile = await requireProfile('mentor')
@@ -7,17 +7,19 @@ export default async function MentorDashboard() {
   return (
     <DashboardShell profile={profile} title="멘토 대시보드">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <PlaceholderCard
+        <LinkCard
           title="프로필 관리"
-          description="소속·경력·학력·직무·산업·멘토링 영역을 등록합니다. (Phase 2)"
+          description="소속·경력·학력·직무·산업·멘토링 영역을 등록합니다."
+          href="/mentor/profile"
+        />
+        <LinkCard
+          title="섭외 요청함"
+          description="받은 섭외 요청의 일정을 수락/거절합니다."
+          href="/mentor/requests"
         />
         <PlaceholderCard
           title="재직 인증"
           description="건강보험자격득실확인서를 업로드하고 승인 상태를 확인합니다. (Phase 5)"
-        />
-        <PlaceholderCard
-          title="섭외 요청함"
-          description="받은 섭외 요청의 일정을 수락/거절합니다. (Phase 2)"
         />
         <PlaceholderCard
           title="확정 프로젝트"

@@ -1,5 +1,5 @@
 import { requireProfile } from '@/lib/auth/dal'
-import { DashboardShell, PlaceholderCard } from '@/components/dashboard-shell'
+import { DashboardShell, LinkCard, PlaceholderCard } from '@/components/dashboard-shell'
 
 export default async function CoordinatorDashboard() {
   const profile = await requireProfile('coordinator')
@@ -7,17 +7,15 @@ export default async function CoordinatorDashboard() {
   return (
     <DashboardShell profile={profile} title="담당자 대시보드">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <PlaceholderCard
+        <LinkCard
           title="멘토 검색"
-          description="산업·직무·기업 조건으로 멘토를 검색합니다. (Phase 2)"
+          description="산업·직무·기업 조건으로 멘토를 검색합니다."
+          href="/coordinator/mentors"
         />
-        <PlaceholderCard
-          title="섭외 요청"
-          description="일정/방식/강사료/내용유형을 담아 요청을 등록합니다. (Phase 2)"
-        />
-        <PlaceholderCard
-          title="수락한 멘토 중 선택"
-          description="응답한 멘토 목록에서 최종 인원을 선택합니다. (Phase 2)"
+        <LinkCard
+          title="섭외 요청 현황"
+          description="등록한 섭외 요청과 응답 현황, 최종 선택을 관리합니다."
+          href="/coordinator/requests"
         />
         <PlaceholderCard
           title="학생 참여 승인"

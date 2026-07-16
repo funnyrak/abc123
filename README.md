@@ -27,12 +27,21 @@ npm run dev
 
 [http://localhost:3000](http://localhost:3000)에서 확인합니다.
 
-## 현재까지 구현된 것 (Phase 1)
+## 현재까지 구현된 것
 
+**Phase 1**
 - 역할별(멘토/담당자/학생/관리자) 회원가입·로그인 (Supabase Auth + `profiles` 트리거)
 - `proxy.ts`(Next.js 16부터 `middleware.ts`를 대체하는 파일명)로 로그인 여부에 따른 라우팅 보호
 - 역할별 대시보드 뼈대 — 각 카드는 어느 Phase에서 실제로 구현되는지 표시
 - 전체 데이터 모델(`supabase/migrations/0001_init.sql`) — 매칭, 프로젝트, Q&A, 정산, 결제, 카카오 알림 테이블 포함
+
+**Phase 2**
+- 멘토 프로필 등록/수정 (소속·경력·학력·직무·산업·멘토링 영역)
+- 담당자용 멘토 검색(산업/직무/기업/지역) 및 상세 프로필
+- 섭외 요청 등록 → 조건에 맞는 모든 승인된 멘토에게 자동으로 `match_candidates` 생성
+- 멘토의 일정 수락/거절, 담당자의 수락자 중 다중 선택 → 확정 시 `Project` + `ProjectMember` 자동 생성
+- 매칭 멘토가 없을 때 `operations_alerts`에 경고 기록 (Phase 5 관제 대시보드에서 노출 예정)
+- 카카오 알림톡은 아직 실제 발송 연동 전 — `kakao_notifications`에 `status: pending`으로 큐잉만 해둠 (카카오 비즈니스 채널·알림톡 대행사 계약 필요)
 
 관리자 계정은 회원가입 화면에서 만들 수 없습니다. Supabase 대시보드에서 직접 유저를 만들고
 `profiles.role`을 `admin`으로 수정해서 생성하세요.

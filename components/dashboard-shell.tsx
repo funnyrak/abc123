@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { logout } from '@/lib/auth/actions'
 import type { Profile } from '@/lib/auth/dal'
 
@@ -56,5 +57,25 @@ export function PlaceholderCard({ title, description }: { title: string; descrip
       </div>
       <p className="mt-2 text-sm text-neutral-500">{description}</p>
     </div>
+  )
+}
+
+export function LinkCard({
+  title,
+  description,
+  href,
+}: {
+  title: string
+  description: string
+  href: string
+}) {
+  return (
+    <Link
+      href={href}
+      className="rounded-lg border border-neutral-200 bg-white p-5 transition-colors hover:border-neutral-400"
+    >
+      <h3 className="text-sm font-semibold text-neutral-900">{title}</h3>
+      <p className="mt-2 text-sm text-neutral-500">{description}</p>
+    </Link>
   )
 }
