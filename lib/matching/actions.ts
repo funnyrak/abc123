@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { requireProfile } from '@/lib/auth/dal'
 import { MatchRequestFormState, MatchRequestSchema } from '@/lib/validation/match-request'
+import { generateProjectCode } from '@/lib/project/code'
 
 // Kakao AlimTalk sending is not wired up yet (needs a business channel +
 // vendor contract, see docs/SPEC.md §7.1). For now we just log a
@@ -120,10 +121,6 @@ export async function respondToCandidate(candidateId: string, decision: 'accepte
     .eq('mentor_id', mentorProfile.id)
 
   revalidatePath('/mentor/requests')
-}
-
-function generateProjectCode() {
-  return `proj-${crypto.randomUUID().slice(0, 8)}`
 }
 
 export async function confirmSelection(matchRequestId: string, selectedCandidateIds: string[]) {

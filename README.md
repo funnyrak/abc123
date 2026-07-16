@@ -8,7 +8,7 @@
 
 1. [supabase.com](https://supabase.com)에서 새 프로젝트를 생성합니다.
 2. Project Settings → API에서 `Project URL`과 `anon public` 키를 확인합니다.
-3. `supabase/migrations/0001_init.sql`을 Supabase 대시보드의 SQL Editor에 붙여넣고 실행합니다. (전체 테이블, 인덱스, RLS 정책, 신규 가입 트리거가 한 번에 생성됩니다.)
+3. `supabase/migrations/` 안의 파일을 **번호 순서대로**(0001 → 0006) SQL Editor에 붙여넣고 실행합니다. 뒤 번호일수록 앞 마이그레이션의 테이블/정책에 의존하므로 순서를 지켜야 합니다.
 
 ### 2. 환경 변수 설정
 
@@ -51,14 +51,26 @@ npm run dev
 - 정산 금액은 멘토 본인 + 관리자만 조회 가능, 담당자는 Invoice(청구 금액)만 확인 가능 (기획서 §6.5 원칙 적용)
 - 실제 결제(PG)는 아직 연동 전 — 관리자가 수동으로 "결제완료 처리"하는 스텁 상태 (Toss Payments/아임포트 등 벤더 계약 필요)
 
+**Phase 4**
+- 담당자가 "Q&A 구독 신청"하면 `qna_subscription` 타입 Project가 생성되고, 멘토는 `/mentor/qna-projects`에서 프로젝트별로 참여 여부를 직접 체크해야 그 학교의 질문을 받음 (기획서 §6.4)
+- 학생 질문 자격: 학교 구독 중이면 무제한, 아니면 무료 3건 → 소진 시 5건/1만원 크레딧 (크레딧 결제도 PG 미연동이라 클릭 시 즉시 지급되는 스텁)
+- 질문 4방식: 멘토 직접 지정(1:1) / 산업 / 직무 / 기업 — 후 3개는 Q&A 프로젝트에 참여한 멘토 중 조건에 맞는 전원에게 브로드캐스트
+- 질문 작성 전 "비슷한 질문 먼저 찾아보기"로 같은 학교 내 답변완료 질문을 검색 (단순 ILIKE 매칭, 임베딩 기반 고도화는 2차 확장)
+- 브로드캐스트 질문은 학생이 답변을 채택해야 하며, 채택된 멘토에게만 보상 지급 (`answer_rewards`, 보상액 5,000원은 사업 확정 전 임시값)
+- 지연 감지: `/api/cron/check-delays` Route Handler + `vercel.json` cron(매일 09:00 UTC) — 1:1 질문 24시간 초과, 브로드캐스트 질문 3회 이상 무응답 멘토를 `operations_alerts`에 기록. **Vercel 프로젝트 환경변수에 `CRON_SECRET`을 설정해야 동작**하며, 화면에 노출하는 관제 대시보드 자체는 Phase 5
+- 담당자는 참여 멘토 수·질문 건수만 확인(§6.5), 정산/보상 금액은 여전히 멘토+관리자만
+
+> ⚠️ Phase 2~3에서 만든 서버 액션(매칭 확정, 프로젝트 생성, 정산 산정 등) 중 상당수가 실제로는 RLS 정책 누락으로 실패하는 버그가 있었습니다. Phase 4에서 발견 즉시 `0004_qna_policies.sql`에서 함께 수정했습니다 — 위 "번호 순서대로 실행" 안내가 특히 중요한 이유입니다.
+
 관리자 계정은 회원가입 화면에서 만들 수 없습니다. Supabase 대시보드에서 직접 유저를 만들고
 `profiles.role`을 `admin`으로 수정해서 생성하세요.
 
 ## 배포 (Vercel)
 
 1. 이 레포를 Vercel에 연결합니다.
-2. Vercel 프로젝트의 Environment Variables에 `.env.local`과 동일한 키를 등록합니다.
+2. Vercel 프로젝트의 Environment Variables에 `.env.local`과 동일한 키(`CRON_SECRET` 포함)를 등록합니다.
 3. 배포 후 Supabase Auth의 Redirect URL 설정에 배포 도메인을 추가합니다.
+4. `vercel.json`에 정의된 cron(`/api/cron/check-delays`, 매일 1회)이 자동으로 등록됩니다. Hobby 플랜은 크론 실행 빈도가 하루 1회로 제한되어 있어 그 이상 촘촘한 지연 감지가 필요하면 Pro 플랜이나 Supabase `pg_cron`으로 전환을 고려하세요.
 
 ## 스크립트
 

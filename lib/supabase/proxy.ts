@@ -41,6 +41,13 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname
   const isPublicRoute = PUBLIC_ROUTES.includes(path)
+  const isApiRoute = path.startsWith('/api/')
+
+  // API routes (e.g. /api/cron/*) authenticate themselves — a cron job
+  // has no browser session cookie to redirect from.
+  if (isApiRoute) {
+    return response
+  }
 
   if (!user && !isPublicRoute) {
     return NextResponse.redirect(new URL('/login', request.url))

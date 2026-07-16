@@ -30,9 +30,10 @@ export default async function CoordinatorDashboard() {
           title="참여 현황 대시보드"
           description="분야·직무·기업·개인별, 기간별 현황을 확인하고 CSV로 내려받습니다. (Phase 3)"
         />
-        <PlaceholderCard
-          title="Q&A 구독 신청"
-          description="학교/기관 단위 질문 서비스 구독을 신청합니다. (Phase 4)"
+        <LinkCard
+          title="Q&A 구독 관리"
+          description="학교/기관 단위 질문 서비스 구독 상태와 참여 멘토·질문 건수를 확인합니다."
+          href="/coordinator/qna"
         />
       </div>
     </DashboardShell>

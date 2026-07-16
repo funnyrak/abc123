@@ -26,13 +26,20 @@ export default async function MentorDashboard() {
           description="일정 등록, 참석 확인, 강의자료 공유, 정산 현황을 확인합니다."
           href="/projects"
         />
-        <PlaceholderCard
-          title="질문함"
-          description="1:1 질문과 산업/직무/기업 브로드캐스트 질문에 답변합니다. (Phase 4)"
+        <LinkCard
+          title="질문 서비스 참여 프로젝트"
+          description="학교/기관별 Q&A 참여 여부를 확인하고 참여를 신청합니다."
+          href="/mentor/qna-projects"
         />
-        <PlaceholderCard
+        <LinkCard
+          title="질문함"
+          description="1:1 질문과 산업/직무/기업 브로드캐스트 질문에 답변합니다."
+          href="/mentor/questions"
+        />
+        <LinkCard
           title="질문 채택 보상"
-          description="채택된 답변에 대한 보상 내역을 확인합니다. (Phase 4)"
+          description="채택된 답변에 대한 보상 내역을 확인합니다."
+          href="/mentor/rewards"
         />
       </div>
     </DashboardShell>
