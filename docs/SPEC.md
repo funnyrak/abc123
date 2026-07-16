@@ -103,6 +103,24 @@ flowchart TD
 - 전체 리스트를 CSV(엑셀)로 다운로드 가능
 - 기존 데이터(StudentEnrollment, ProjectSchedule.attended, MentorProfile의 company/position/mentoring_fields)를 조합한 집계 화면으로, 별도 테이블 없이 조회 쿼리로 구현
 
+### 4.9 운영 관제 대시보드 (관리자, 실시간)
+관리자가 접수 상황을 실시간으로 확인하고 지연·이상 상황을 바로 통제할 수 있는 대시보드.
+
+1. **멘토 추천 접수 현황** — 매칭 신청 전체를 신청 → 승인/거절 → 확정(성사) 단계별로 실시간 집계, 신청 대비 성사율 확인
+2. **추천 멘토 없음 경고** — 담당자의 조건에 맞는 멘토가 없거나, 매칭 신청 후 일정 시간 내 멘토 응답이 없을 때 대시보드에 경고 표시(⚠)
+3. **매칭 스케줄 관리** — 매칭된 멘토들의 전체 일정을 스케줄표로 확인. 각 회차 **1주일 전 · 전날**에 멘토·학생에게 카카오 알림톡으로 자동 안내
+4. **결제 현황 관리** — 프로젝트별 결제 방식(선결제/후결제)에 따라 멘토 정산 처리 시점이 달라짐
+   - **선결제**: 기관이 이미 결제를 완료한 상태이므로, 프로젝트(또는 회차) **종료 직후** 멘토 정산을 처리 가능한 상태로 전환
+   - **후결제**: 기관의 결제가 아직 안 된 상태이므로, 기관 **결제 완료 후에만** 멘토 정산을 처리 가능한 상태로 전환
+   - 관리자는 프로젝트별 결제 상태(미결제/결제완료)와 정산 가능 여부를 함께 확인
+5. **질문 접수 및 매칭 현황** — 전체 Q&A를 실시간으로 확인 (미답변 / 답변완료, 프로젝트·멘토별 분포)
+6. **질문 지체 경고** — 질문 등록 후 일정 시간(예: 48시간) 이상 미답변 상태가 지속되면 대시보드에 경고 표시(⚠)
+
+### 4.10 프로젝트 추가 시 멘토 참여 재확인
+- 이미 매칭된 멘토-기관 관계에서 학교·프로젝트가 신규로 참여/구독을 희망하는 경우, 새 프로젝트를 바로 연결하지 않고 먼저 멘토에게 확인
+- 카카오 알림톡: "○○ 프로젝트가 추가되었습니다. Q&A 서비스에 참여하시겠습니까?" + 참여/불참 버튼(웹 액션 링크)
+- 멘토가 참여를 선택하면 신규 Project가 연결되고, 불참을 선택하면 해당 프로젝트에서 제외됨 (기존 매칭 요청/승인 플로우를 재사용)
+
 ## 5. 데이터 모델
 
 | 테이블 | 주요 필드 | 설명 |
@@ -114,17 +132,19 @@ flowchart TD
 | `MentorEducation` | id, mentor_id, degree_type, school_name, major, graduation_year | 출신 학교. degree_type: 학사/석사 (멘토 1명당 2건) |
 | `VerificationDocument` | id, mentor_id, file_url, status, reviewed_by, reviewed_at | 재직 인증 서류 |
 | `MatchRequest` | id, mentor_id, coordinator_id, org_id, message, status, requested_at, responded_at | 매칭 신청/승인/거절 |
-| `Project` | id, match_request_id, mentor_id, coordinator_id, org_id, project_code, session_fee, status, created_at | 매칭 확정 시 자동 생성, session_fee는 회당 정산 단가 |
+| `Project` | id, match_request_id, mentor_id, coordinator_id, org_id, project_code, session_fee, payment_type, status, created_at | 매칭 확정 시 자동 생성. session_fee는 회당 정산 단가, payment_type은 선결제/후결제 |
 | `ProjectMember` | id, project_id, user_id, role_in_project | 프로젝트 참여자(멘토/담당자) |
 | `StudentEnrollment` | id, project_id, student_id, org_code, status, approved_by, approved_at, result_summary | 학교 코드로 참여 신청한 학생의 승인 상태 및 참여 결과 |
 | `StudentProfile` | id, user_id, student_no, major, gender, interest_fields | 학생 상세 정보. 이름/연락처는 User, 학교는 org_id로 연결 |
-| `ProjectSchedule` | id, project_id, session_no, scheduled_at, topic, status, attended | 회차별 일정, attended는 멘토 참석 여부(정산 근거) |
+| `ProjectSchedule` | id, project_id, session_no, scheduled_at, topic, status, attended, reminder_7d_sent, reminder_1d_sent | 회차별 일정. attended는 멘토 참석 여부(정산 근거), reminder_*_sent는 사전 알림 중복 발송 방지 플래그 |
 | `ProgressLog` | id, schedule_id, content, attachments, created_by, created_at | 회차별 진행 기록 |
 | `Report` | id, project_id, title, content, submitted_by, submitted_at, status | 보고서 |
 | `QAThread` | id, project_id, student_id, created_by, subject, created_at | 질문 스레드. student_id로 학생별 분리, 본인 스레드만 조회 가능 |
 | `QAMessage` | id, thread_id, sender_id, content, created_at, read_at | 질문/답변 메시지 |
-| `MentorSettlement` | id, mentor_id, project_id, period_start, period_end, session_count, total_amount, status, paid_at | 멘토 참여 횟수·정산 금액 집계, status는 정산대기/정산완료 |
-| `KakaoNotification` | id, user_id, type, template_code, sent_at, status, action_token | 알림톡 발송 로그 및 1회성 액션 토큰. type: match_request/new_question/answer_ready/verification_result |
+| `MentorSettlement` | id, mentor_id, project_id, period_start, period_end, session_count, total_amount, status, paid_at | 멘토 참여 횟수·정산 금액 집계. status는 정산대기/정산가능/정산완료 — payment_type·Invoice 상태에 따라 정산대기→정산가능 전환 시점이 달라짐 |
+| `Invoice` | id, project_id, org_id, payment_type, amount, status, invoiced_at, paid_at | 기관 대상 결제/청구. status는 미결제/결제완료 |
+| `OperationsAlert` | id, type, ref_table, ref_id, triggered_at, resolved_at, status | 관제 대시보드 경고. type: no_mentor_match / question_delay |
+| `KakaoNotification` | id, user_id, type, template_code, sent_at, status, action_token | 알림톡 발송 로그 및 1회성 액션 토큰. type: match_request/new_question/answer_ready/verification_result/schedule_reminder/project_addition_confirm |
 
 ## 6. 화면 목록
 
@@ -136,7 +156,7 @@ flowchart TD
 
 **학생**: 학교 코드 입력 후 참여 신청, 참여 승인 대기/현황, **내 질문·답변 목록(본인 스레드만)**, 질문 등록
 
-**관리자**: 멘토 승인 대기 목록, 재직 인증 검토, 매칭 전체 현황, 프로젝트 전체 목록, 카카오 알림 발송 로그, **학교 코드 발급/관리**, **멘토 정산 관리**
+**관리자**: 멘토 승인 대기 목록, 재직 인증 검토, 매칭 전체 현황, 프로젝트 전체 목록, 카카오 알림 발송 로그, **학교 코드 발급/관리**, **멘토 정산 관리**, **운영 관제 대시보드**(접수 현황·경고, 매칭 스케줄표, 결제 현황, 질문 접수/지체 경고), **프로젝트 추가 확인 발송 로그**
 
 ## 7. 기술 스택
 
@@ -159,6 +179,8 @@ flowchart TD
 - 재직 인증 서류 업로드 + 관리자 승인
 - 멘토 참여 횟수·정산 금액 확인, 담당자용 학생 참여 결과 확인, 관리자용 정산/학교코드 관리 화면
 - 담당자용 참여 현황 대시보드(분야/직무/기업/개인별, 기간별) + CSV 다운로드
+- 관리자용 운영 관제 대시보드: 매칭 접수 현황, 추천 멘토 없음 경고, 매칭 스케줄표 + 1주일 전/전날 카카오 알림, 결제 현황(선결제/후결제별 정산 시점 관리), 질문 접수 현황, 질문 지체 경고
+- 기존 매칭 관계에 신규 프로젝트 추가 시 멘토 참여 여부 재확인(카카오 알림톡)
 
 **2차 확장**
 - 보고서 정식 양식/PDF 출력
@@ -175,5 +197,5 @@ flowchart TD
 | Phase 0 | 서비스 구조 설계 확정 (본 문서) |
 | Phase 1 | 프로젝트 뼈대: 인증/역할별 대시보드, DB 스키마, 배포 파이프라인 |
 | Phase 2 | 매칭 플로우: 멘토 프로필/검색, 매칭 신청~확정, 카카오 알림톡 연동 |
-| Phase 3 | 프로젝트 & Q&A: 프로젝트 자동 생성, 일정/진행기록, Q&A 스레드 |
-| Phase 4 | 재직 인증 플로우 + 전체 QA + 오픈 |
+| Phase 3 | 프로젝트 & Q&A: 프로젝트 자동 생성, 일정/진행기록, Q&A 스레드, 스케줄 사전 알림(1주일 전·전날) |
+| Phase 4 | 재직 인증 플로우 + 운영 관제 대시보드(접수 현황·경고, 결제 현황) + 전체 QA + 오픈 |
