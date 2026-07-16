@@ -16,7 +16,7 @@
 |---|---|---|
 | 멘토 | 재직 중인 전문가, 재직 인증을 통과해야 노출됨 | 프로필 등록, 재직 인증 서류 제출, 매칭 요청 승인/거절(카카오톡), 질문 확인/답변(카카오톡), 프로젝트 진행 기록 작성, 본인 참여 횟수·정산 금액 확인 |
 | 담당자 | 학교·기관 소속, 멘토를 찾는 주체 | 멘토 검색, 매칭 신청, 프로젝트 룸에서 일정 확인, 소속 학생 참여 승인, 학생별 참여 결과 확인 |
-| 학생 | 학교 코드로 가입하는 실제 멘토링 참여자 | 학교 코드 입력 후 가입 신청 → 담당자 승인 후 프로젝트 참여, 멘토에게 질문 등록, 본인이 질문한 내용과 답변만 조회 |
+| 학생 | 학교 코드로 가입하는 실제 멘토링 참여자 (대학생 기준) | 학교 코드 입력 후 가입 신청 → 담당자 승인 후 프로젝트 참여, 멘토에게 질문 등록, 본인이 질문한 내용과 답변만 조회, 답변 완료 시 카카오 알림톡 수신 |
 | 관리자 | 플랫폼 운영자 | 멘토 승인, 재직 인증 서류 검토, 매칭/프로젝트 전체 현황 관리, 학교 코드 발급/관리, 멘토 정산 관리, 카카오 알림 발송 로그 확인 |
 
 ## 3. 전체 흐름
@@ -67,8 +67,8 @@ flowchart TD
 - 새 질문/답변 발생 시 카카오 알림톡 발송
 
 ### 4.3 카카오톡 연동 (방식 A: 알림톡 + 웹 액션 링크)
-- 대상 이벤트: 신규 매칭 요청, 신규 질문, 재직 인증 결과
-- 알림톡 메시지에 "승인/거절/답변하기" 버튼 → 모바일 웹의 1회성 액션 페이지로 연결되어 그 자리에서 처리
+- 대상 이벤트: 신규 매칭 요청(멘토 수신), 신규 질문(멘토 수신), 답변 완료(학생 수신), 재직 인증 결과(멘토 수신)
+- 알림톡 메시지에 "승인/거절/답변하기/확인하기" 버튼 → 모바일 웹의 1회성 액션 페이지로 연결되어 그 자리에서 처리
 - 카카오 비즈니스 채널 + 발신프로필 등록, 메시지 템플릿 사전 심사 필요
 - 실제 발송은 외부 알림톡 대행 API(예: 솔라피, 알리고 등) 사용, 건당 발송 비용 발생
 
@@ -85,6 +85,7 @@ flowchart TD
 
 ### 4.6 학생 참여 관리 (학교 코드 기반)
 - 관리자가 학교/기관마다 고유한 **학교 코드**(`org_code`)를 발급
+- 학생 회원가입 정보: 이름, 연락처, 학교(학교 코드로 자동 연결), 전공, 학번, 성별, 관심분야
 - 학생은 회원가입 시 학교 코드를 입력해 소속 학교에 참여 신청
 - 해당 학교 담당자가 참여 신청을 승인/반려 (담당자 화면에서 대기 목록 확인)
 - 승인된 학생만 프로젝트에 연결되어 멘토에게 질문할 수 있음
@@ -94,6 +95,13 @@ flowchart TD
 - 프로젝트별로 회당 정산 단가(`session_fee`)를 설정
 - 멘토는 자신의 대시보드에서 회차별 참석 여부, 누적 참여 횟수, 정산 예정 금액을 확인 가능
 - 관리자는 전체 멘토의 정산 현황을 확인하고 정산 완료 처리 가능 (실제 계좌 이체 등 지급 실행은 MVP 범위 밖 — 금액 확인/기록까지가 MVP)
+
+### 4.8 학교(담당자) 참여 현황 대시보드
+- 담당자가 소속 학교의 멘토링 참여 현황을 한눈에 확인
+- 구분 보기: 전체 / 분야별(멘토링 영역) / 직무별 / 기업별 / 개인별(학생별)
+- 기간 보기: 이번 주 / 이번 달 / 전체
+- 전체 리스트를 CSV(엑셀)로 다운로드 가능
+- 기존 데이터(StudentEnrollment, ProjectSchedule.attended, MentorProfile의 company/position/mentoring_fields)를 조합한 집계 화면으로, 별도 테이블 없이 조회 쿼리로 구현
 
 ## 5. 데이터 모델
 
@@ -109,13 +117,14 @@ flowchart TD
 | `Project` | id, match_request_id, mentor_id, coordinator_id, org_id, project_code, session_fee, status, created_at | 매칭 확정 시 자동 생성, session_fee는 회당 정산 단가 |
 | `ProjectMember` | id, project_id, user_id, role_in_project | 프로젝트 참여자(멘토/담당자) |
 | `StudentEnrollment` | id, project_id, student_id, org_code, status, approved_by, approved_at, result_summary | 학교 코드로 참여 신청한 학생의 승인 상태 및 참여 결과 |
+| `StudentProfile` | id, user_id, student_no, major, gender, interest_fields | 학생 상세 정보. 이름/연락처는 User, 학교는 org_id로 연결 |
 | `ProjectSchedule` | id, project_id, session_no, scheduled_at, topic, status, attended | 회차별 일정, attended는 멘토 참석 여부(정산 근거) |
 | `ProgressLog` | id, schedule_id, content, attachments, created_by, created_at | 회차별 진행 기록 |
 | `Report` | id, project_id, title, content, submitted_by, submitted_at, status | 보고서 |
 | `QAThread` | id, project_id, student_id, created_by, subject, created_at | 질문 스레드. student_id로 학생별 분리, 본인 스레드만 조회 가능 |
 | `QAMessage` | id, thread_id, sender_id, content, created_at, read_at | 질문/답변 메시지 |
 | `MentorSettlement` | id, mentor_id, project_id, period_start, period_end, session_count, total_amount, status, paid_at | 멘토 참여 횟수·정산 금액 집계, status는 정산대기/정산완료 |
-| `KakaoNotification` | id, user_id, type, template_code, sent_at, status, action_token | 알림톡 발송 로그 및 1회성 액션 토큰 |
+| `KakaoNotification` | id, user_id, type, template_code, sent_at, status, action_token | 알림톡 발송 로그 및 1회성 액션 토큰. type: match_request/new_question/answer_ready/verification_result |
 
 ## 6. 화면 목록
 
@@ -123,7 +132,7 @@ flowchart TD
 
 **멘토**: 대시보드, 프로필 관리, 재직 인증 서류 업로드, 매칭 요청함, 진행중 프로젝트 목록, 프로젝트 룸(일정/기록/보고서), Q&A, **내 참여 횟수·정산 내역**
 
-**담당자**: 멘토 검색/필터, 멘토 상세 프로필, 매칭 신청, 매칭 현황, 프로젝트 룸, Q&A, **학생 참여 승인 대기 목록**, **학생별 참여 결과 조회**
+**담당자**: 멘토 검색/필터, 멘토 상세 프로필, 매칭 신청, 매칭 현황, 프로젝트 룸, Q&A, **학생 참여 승인 대기 목록**, **학생별 참여 결과 조회**, **참여 현황 대시보드**(전체/분야별/직무별/기업별/개인별, 주간·월간·전체, CSV 다운로드)
 
 **학생**: 학교 코드 입력 후 참여 신청, 참여 승인 대기/현황, **내 질문·답변 목록(본인 스레드만)**, 질문 등록
 
@@ -149,6 +158,7 @@ flowchart TD
 - Q&A 게시판형 스레드(학생별 분리) + 카카오 알림톡
 - 재직 인증 서류 업로드 + 관리자 승인
 - 멘토 참여 횟수·정산 금액 확인, 담당자용 학생 참여 결과 확인, 관리자용 정산/학교코드 관리 화면
+- 담당자용 참여 현황 대시보드(분야/직무/기업/개인별, 기간별) + CSV 다운로드
 
 **2차 확장**
 - 보고서 정식 양식/PDF 출력
