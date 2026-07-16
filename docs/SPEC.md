@@ -52,7 +52,12 @@ flowchart TD
 
 ### 4.1 멘토 추천/매칭
 - 담당자가 전문분야, 경력연차, 지역, 활동 가능 시간대로 멘토 검색
-- 멘토 상세 프로필(경력, 자기소개, 활동 가능 시간) 열람
+- 멘토 상세 프로필 열람, 프로필 구성 항목:
+  1. 현재 소속: 기업 / 부서 / 직책(직급)
+  2. 주요 경력 사항 (연도 포함, 복수 항목 가능)
+  3. 출신 학교 (학사 + 석사)
+  4. 주요 업무 내용
+  5. 멘토링 영역
 - 매칭 신청 → 카카오 알림톡 발송 → 멘토가 승인/거절 → 확정 시 Project 자동 생성
 
 ### 4.2 Q&A
@@ -96,7 +101,9 @@ flowchart TD
 |---|---|---|
 | `User` | id, email, phone, role, name, org_id | 공통 계정 (역할: mentor / coordinator / student / admin) |
 | `Organization` | id, name, type, address, org_code | 학교·기관 정보. org_code는 학생 가입용 학교 코드 |
-| `MentorProfile` | id, user_id, field, career_years, bio, available_times, region, status, avg_rating | 멘토 상세 정보, status는 pending/approved/rejected |
+| `MentorProfile` | id, user_id, company, department, position, main_duties, mentoring_fields, bio, available_times, region, status, avg_rating | 멘토 상세 정보. mentoring_fields는 멘토링 영역(복수 태그), status는 pending/approved/rejected |
+| `MentorCareer` | id, mentor_id, start_year, end_year, organization, description | 주요 경력 사항. 멘토 1명당 여러 건 등록 가능 |
+| `MentorEducation` | id, mentor_id, degree_type, school_name, major, graduation_year | 출신 학교. degree_type: 학사/석사 (멘토 1명당 2건) |
 | `VerificationDocument` | id, mentor_id, file_url, status, reviewed_by, reviewed_at | 재직 인증 서류 |
 | `MatchRequest` | id, mentor_id, coordinator_id, org_id, message, status, requested_at, responded_at | 매칭 신청/승인/거절 |
 | `Project` | id, match_request_id, mentor_id, coordinator_id, org_id, project_code, session_fee, status, created_at | 매칭 확정 시 자동 생성, session_fee는 회당 정산 단가 |
