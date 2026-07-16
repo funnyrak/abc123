@@ -17,6 +17,11 @@ export default async function CoordinatorDashboard() {
           description="등록한 섭외 요청과 응답 현황, 최종 선택을 관리합니다."
           href="/coordinator/requests"
         />
+        <LinkCard
+          title="확정 프로젝트"
+          description="일정 확인, 강의자료, 결제 현황을 확인합니다."
+          href="/projects"
+        />
         <PlaceholderCard
           title="학생 참여 승인"
           description="학교 코드로 신청한 학생의 참여를 승인/반려합니다. (Phase 3)"

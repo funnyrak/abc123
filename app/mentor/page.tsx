@@ -21,17 +21,18 @@ export default async function MentorDashboard() {
           title="재직 인증"
           description="건강보험자격득실확인서를 업로드하고 승인 상태를 확인합니다. (Phase 5)"
         />
-        <PlaceholderCard
+        <LinkCard
           title="확정 프로젝트"
-          description="일정, 진행 기록, 강의자료를 확인합니다. (Phase 3)"
+          description="일정 등록, 참석 확인, 강의자료 공유, 정산 현황을 확인합니다."
+          href="/projects"
         />
         <PlaceholderCard
           title="질문함"
           description="1:1 질문과 산업/직무/기업 브로드캐스트 질문에 답변합니다. (Phase 4)"
         />
         <PlaceholderCard
-          title="참여·정산 내역"
-          description="참여 횟수, 정산 예정 금액, 질문 채택 보상을 확인합니다. (Phase 3~4)"
+          title="질문 채택 보상"
+          description="채택된 답변에 대한 보상 내역을 확인합니다. (Phase 4)"
         />
       </div>
     </DashboardShell>

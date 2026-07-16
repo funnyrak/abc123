@@ -179,6 +179,17 @@ export async function confirmSelection(matchRequestId: string, selectedCandidate
 
   if (projectError || !project) return
 
+  const commissionRate = 0.2
+  const feeAmount = Number(matchRequest.session_fee ?? 0)
+  await supabase.from('invoices').insert({
+    project_id: project.id,
+    org_id: matchRequest.org_id,
+    payment_type: 'prepaid',
+    payment_method: selectedCandidates.length >= 10 ? 'project_contract' : null,
+    amount: Math.round(feeAmount * (1 + commissionRate)),
+    status: 'unpaid',
+  })
+
   const memberRows = [
     { project_id: project.id, user_id: profile.id, role_in_project: 'coordinator' as const },
     ...selectedCandidates.map((c) => ({
