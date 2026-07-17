@@ -69,10 +69,14 @@ export async function createMatchRequest(
     return { message: insertError?.message ?? '섭외 요청 생성에 실패했습니다.' }
   }
 
+  // Unclaimed roster entries (no linked login) are excluded — nobody
+  // could ever accept/decline on their behalf, which would leave the
+  // invitation stuck pending forever.
   let mentorQuery = supabase
     .from('mentor_profiles')
     .select('id, user_id')
     .eq('status', 'approved')
+    .eq('claim_status', 'claimed')
     .ilike('industry', `%${industry}%`)
 
   if (jobFunction) mentorQuery = mentorQuery.ilike('job_function', `%${jobFunction}%`)

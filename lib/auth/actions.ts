@@ -27,13 +27,14 @@ export async function signup(
     phone: formData.get('phone'),
     password: formData.get('password'),
     orgCode: formData.get('orgCode') || undefined,
+    claimToken: formData.get('claimToken') || undefined,
   })
 
   if (!validated.success) {
     return { errors: validated.error.flatten().fieldErrors }
   }
 
-  const { role, name, email, phone, password, orgCode } = validated.data
+  const { role, name, email, phone, password, orgCode, claimToken } = validated.data
   const supabase = await createClient()
 
   let orgId: string | null = null
@@ -54,7 +55,7 @@ export async function signup(
     email,
     password,
     options: {
-      data: { role, name, phone, org_id: orgId },
+      data: { role, name, phone, org_id: orgId, claim_token: claimToken ?? null },
     },
   })
 

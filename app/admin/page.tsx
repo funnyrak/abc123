@@ -19,6 +19,11 @@ export default async function AdminDashboard() {
           href="/admin/mentors"
         />
         <LinkCard
+          title="가입 대기 멘토 (초대 링크)"
+          description="시딩된 멘토 풀 중 아직 가입 전인 멘토에게 보낼 개인 초대 링크를 확인합니다."
+          href="/admin/mentors/unclaimed"
+        />
+        <LinkCard
           title="학교/기관 코드 관리"
           description="학교/기관을 등록하고 코드를 발급하며 Q&A 구독을 관리합니다."
           href="/admin/organizations"

@@ -10,38 +10,50 @@ const ROLES = [
   { value: 'student', label: '학생' },
 ] as const
 
-export function SignupForm() {
+export function SignupForm({
+  claimToken,
+  prefilledName,
+}: {
+  claimToken?: string
+  prefilledName?: string
+}) {
   const [state, action, pending] = useActionState<SignupFormState, FormData>(signup, undefined)
   const [role, setRole] = useState<(typeof ROLES)[number]['value']>('mentor')
+  const isClaiming = Boolean(claimToken)
 
   return (
     <form action={action} className="mt-8 flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-neutral-700">역할</span>
-        <div className="grid grid-cols-3 gap-2">
-          {ROLES.map((r) => (
-            <label
-              key={r.value}
-              className={`cursor-pointer rounded-md border px-3 py-2 text-center text-sm ${
-                role === r.value
-                  ? 'border-neutral-900 bg-neutral-900 text-white'
-                  : 'border-neutral-300 text-neutral-700'
-              }`}
-            >
-              <input
-                type="radio"
-                name="role"
-                value={r.value}
-                checked={role === r.value}
-                onChange={() => setRole(r.value)}
-                className="sr-only"
-              />
-              {r.label}
-            </label>
-          ))}
+      {claimToken && <input type="hidden" name="claimToken" value={claimToken} />}
+
+      {!isClaiming && (
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-medium text-neutral-700">역할</span>
+          <div className="grid grid-cols-3 gap-2">
+            {ROLES.map((r) => (
+              <label
+                key={r.value}
+                className={`cursor-pointer rounded-md border px-3 py-2 text-center text-sm ${
+                  role === r.value
+                    ? 'border-neutral-900 bg-neutral-900 text-white'
+                    : 'border-neutral-300 text-neutral-700'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value={r.value}
+                  checked={role === r.value}
+                  onChange={() => setRole(r.value)}
+                  className="sr-only"
+                />
+                {r.label}
+              </label>
+            ))}
+          </div>
+          {state?.errors?.role && <p className="text-sm text-red-600">{state.errors.role[0]}</p>}
         </div>
-        {state?.errors?.role && <p className="text-sm text-red-600">{state.errors.role[0]}</p>}
-      </div>
+      )}
+      {isClaiming && <input type="hidden" name="role" value="mentor" />}
 
       <div className="flex flex-col gap-1">
         <label htmlFor="name" className="text-sm font-medium text-neutral-700">
@@ -51,6 +63,7 @@ export function SignupForm() {
           id="name"
           name="name"
           required
+          defaultValue={prefilledName}
           className="rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
         />
         {state?.errors?.name && <p className="text-sm text-red-600">{state.errors.name[0]}</p>}

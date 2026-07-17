@@ -26,11 +26,17 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
 
   const { data: educations } = await supabase.from('mentor_educations').select('*').eq('mentor_id', id)
 
-  const name = (mentor.profiles as unknown as { name: string } | null)?.name ?? '이름 미등록'
+  const name =
+    (mentor.profiles as unknown as { name: string } | null)?.name ?? mentor.unclaimed_name ?? '이름 미등록'
 
   return (
     <DashboardShell profile={profile} title={`${name} 멘토`}>
       <div className="max-w-2xl">
+        {mentor.claim_status === 'unclaimed' && (
+          <p className="mb-4 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
+            이 멘토는 아직 가입 전입니다 — 초대 후 활성화되면 섭외 요청에 응답할 수 있습니다.
+          </p>
+        )}
         <div className="rounded-lg border border-neutral-200 bg-white p-5">
           <p className="text-sm text-neutral-500">
             {mentor.company} · {mentor.position} {mentor.department ? `· ${mentor.department}` : ''}

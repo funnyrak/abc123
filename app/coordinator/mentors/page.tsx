@@ -14,7 +14,9 @@ export default async function MentorSearchPage({
 
   let query = supabase
     .from('mentor_profiles')
-    .select('id, company, department, position, job_function, industry, mentoring_fields, region, profiles(name)')
+    .select(
+      'id, company, department, position, job_function, industry, mentoring_fields, region, claim_status, unclaimed_name, profiles(name)'
+    )
     .eq('status', 'approved')
 
   if (params.industry) query = query.ilike('industry', `%${params.industry}%`)
@@ -46,8 +48,13 @@ export default async function MentorSearchPage({
             href={`/coordinator/mentors/${m.id}`}
             className="rounded-lg border border-neutral-200 bg-white p-4 hover:border-neutral-400"
           >
-            <p className="text-sm font-semibold text-neutral-900">
-              {(m.profiles as unknown as { name: string } | null)?.name ?? '이름 미등록'}
+            <p className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
+              {(m.profiles as unknown as { name: string } | null)?.name ?? m.unclaimed_name ?? '이름 미등록'}
+              {m.claim_status === 'unclaimed' && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                  가입 대기
+                </span>
+              )}
             </p>
             <p className="mt-1 text-sm text-neutral-500">
               {m.company} · {m.position} {m.department ? `· ${m.department}` : ''}

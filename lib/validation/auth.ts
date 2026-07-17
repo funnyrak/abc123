@@ -12,6 +12,7 @@ export const SignupFormSchema = z
       .regex(/[a-zA-Z]/, { error: '영문을 포함해주세요.' })
       .regex(/[0-9]/, { error: '숫자를 포함해주세요.' }),
     orgCode: z.string().trim().optional(),
+    claimToken: z.string().trim().optional(),
   })
   .refine((data) => data.role === 'mentor' || !!data.orgCode, {
     error: '학교/기관 코드를 입력해주세요.',
