@@ -25,7 +25,7 @@ async function findQnaProject(
 export type SimilarQuestion = {
   id: string
   content: string
-  answers: { content: string; mentor_profiles: { profiles: { name: string } | null } | null }[]
+  answers: { content: string; mentor_profiles: { display_name: string | null } | null }[]
 }
 
 export async function searchSimilarQuestions(keyword: string): Promise<SimilarQuestion[]> {
@@ -38,7 +38,7 @@ export async function searchSimilarQuestions(keyword: string): Promise<SimilarQu
 
   const { data } = await supabase
     .from('questions')
-    .select('id, content, answers(content, mentor_profiles(profiles(name)))')
+    .select('id, content, answers(content, mentor_profiles(display_name))')
     .eq('project_id', qnaProject.id)
     .eq('status', 'answered')
     .ilike('content', `%${keyword.trim()}%`)

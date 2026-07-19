@@ -145,7 +145,7 @@ export function AskQuestionForm({
                     <p key={i} className="mt-1 text-neutral-600">
                       A. {a.content}{' '}
                       <span className="text-xs text-neutral-400">
-                        — {a.mentor_profiles?.profiles?.name ?? '멘토'}
+                        — {a.mentor_profiles?.display_name ?? '멘토'}
                       </span>
                     </p>
                   ))}

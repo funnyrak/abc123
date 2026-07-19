@@ -16,7 +16,7 @@ export default async function AdminSettlementsPage() {
   const { data: settlements } = await supabase
     .from('mentor_settlements')
     .select(
-      'id, session_count, total_amount, status, projects(id, project_code), mentor_profiles(profiles(name))'
+      'id, session_count, total_amount, status, projects(id, project_code), mentor_profiles(display_name)'
     )
     .order('created_at', { ascending: false })
 
@@ -25,8 +25,8 @@ export default async function AdminSettlementsPage() {
       <div className="flex flex-col gap-2">
         {(settlements ?? []).map((s) => {
           const project = s.projects as unknown as { id: string; project_code: string } | null
-          const mentorName = (s.mentor_profiles as unknown as { profiles: { name: string } | null } | null)
-            ?.profiles?.name
+          const mentorName = (s.mentor_profiles as unknown as { display_name: string | null } | null)
+            ?.display_name
           return (
             <Link
               key={s.id}

@@ -18,7 +18,7 @@ export default async function StudentQuestionsPage() {
   const { data: questions } = await supabase
     .from('questions')
     .select(
-      'id, scope_type, scope_value, content, status, created_at, answers(id, content, is_accepted, mentor_profiles(profiles(name)))'
+      'id, scope_type, scope_value, content, status, created_at, answers(id, content, is_accepted, mentor_profiles(display_name))'
     )
     .eq('student_id', profile.id)
     .order('created_at', { ascending: false })
@@ -38,7 +38,7 @@ export default async function StudentQuestionsPage() {
             id: string
             content: string
             is_accepted: boolean
-            mentor_profiles: { profiles: { name: string } | null } | null
+            mentor_profiles: { display_name: string | null } | null
           }[]
           const hasAccepted = answers.some((a) => a.is_accepted)
           return (
@@ -56,7 +56,7 @@ export default async function StudentQuestionsPage() {
                     <p className="text-neutral-700">
                       A. {a.content}{' '}
                       <span className="text-xs text-neutral-400">
-                        — {a.mentor_profiles?.profiles?.name ?? '멘토'}
+                        — {a.mentor_profiles?.display_name ?? '멘토'}
                       </span>
                     </p>
                     {q.scope_type !== 'individual' && (
