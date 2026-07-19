@@ -13,12 +13,14 @@ const ROLES = [
 export function SignupForm({
   claimToken,
   prefilledName,
+  defaultRole,
 }: {
   claimToken?: string
   prefilledName?: string
+  defaultRole?: (typeof ROLES)[number]['value']
 }) {
   const [state, action, pending] = useActionState<SignupFormState, FormData>(signup, undefined)
-  const [role, setRole] = useState<(typeof ROLES)[number]['value']>('mentor')
+  const [role, setRole] = useState<(typeof ROLES)[number]['value']>(defaultRole ?? 'mentor')
   const isClaiming = Boolean(claimToken)
 
   return (
@@ -100,17 +102,18 @@ export function SignupForm({
 
       {role !== 'mentor' && (
         <div className="flex flex-col gap-1">
-          <label htmlFor="orgCode" className="text-sm font-medium text-neutral-700">
-            학교/기관 코드
+          <label htmlFor="orgName" className="text-sm font-medium text-neutral-700">
+            학교/기관명
           </label>
           <input
-            id="orgCode"
-            name="orgCode"
+            id="orgName"
+            name="orgName"
+            placeholder="예: 동의대학교"
             required
             className="rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
           />
-          {state?.errors?.orgCode && (
-            <p className="text-sm text-red-600">{state.errors.orgCode[0]}</p>
+          {state?.errors?.orgName && (
+            <p className="text-sm text-red-600">{state.errors.orgName[0]}</p>
           )}
         </div>
       )}

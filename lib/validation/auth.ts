@@ -11,12 +11,12 @@ export const SignupFormSchema = z
       .min(8, { error: '비밀번호는 8자 이상이어야 합니다.' })
       .regex(/[a-zA-Z]/, { error: '영문을 포함해주세요.' })
       .regex(/[0-9]/, { error: '숫자를 포함해주세요.' }),
-    orgCode: z.string().trim().optional(),
+    orgName: z.string().trim().optional(),
     claimToken: z.string().trim().optional(),
   })
-  .refine((data) => data.role === 'mentor' || !!data.orgCode, {
-    error: '학교/기관 코드를 입력해주세요.',
-    path: ['orgCode'],
+  .refine((data) => data.role === 'mentor' || !!data.orgName, {
+    error: '학교/기관명을 입력해주세요.',
+    path: ['orgName'],
   })
 
 export type SignupFormState =
@@ -27,7 +27,7 @@ export type SignupFormState =
         email?: string[]
         phone?: string[]
         password?: string[]
-        orgCode?: string[]
+        orgName?: string[]
       }
       message?: string
     }

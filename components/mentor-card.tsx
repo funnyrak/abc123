@@ -8,8 +8,8 @@ export type MentorListItem = {
   company: string | null
   department: string | null
   position: string | null
-  job_function: string | null
-  industry: string | null
+  job_function: string[] | null
+  industry: string[] | null
   mentoring_fields: string[] | null
   region: string | null
   claim_status: string
@@ -29,8 +29,8 @@ export function MentorProfileBody({
     company: string | null
     position: string | null
     department: string | null
-    industry: string | null
-    job_function: string | null
+    industry: string[] | null
+    job_function: string[] | null
     region: string | null
     mentoring_fields: string[] | null
     bio: string | null
@@ -52,7 +52,8 @@ export function MentorProfileBody({
           {mentor.company} · {mentor.position} {mentor.department ? `· ${mentor.department}` : ''}
         </p>
         <p className="mt-1 text-sm text-neutral-500">
-          {mentor.industry} · {mentor.job_function} {mentor.region ? `· ${mentor.region}` : ''}
+          {(mentor.industry ?? []).join(', ')} · {(mentor.job_function ?? []).join(', ')}{' '}
+          {mentor.region ? `· ${mentor.region}` : ''}
         </p>
         {mentor.mentoring_fields && mentor.mentoring_fields.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
@@ -120,7 +121,8 @@ export function MentorCard({
         {mentor.company} · {mentor.position} {mentor.department ? `· ${mentor.department}` : ''}
       </p>
       <p className="mt-1 text-xs text-neutral-400">
-        {mentor.industry} · {mentor.job_function} {mentor.region ? `· ${mentor.region}` : ''}
+        {(mentor.industry ?? []).join(', ')} · {(mentor.job_function ?? []).join(', ')}{' '}
+        {mentor.region ? `· ${mentor.region}` : ''}
       </p>
       {mentor.mentoring_fields && mentor.mentoring_fields.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">

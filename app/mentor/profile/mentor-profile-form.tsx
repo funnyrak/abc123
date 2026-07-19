@@ -3,13 +3,14 @@
 import { useActionState, useState } from 'react'
 import { updateMentorProfile } from '@/lib/mentor/actions'
 import { MentorProfileFormState } from '@/lib/validation/mentor'
+import { INDUSTRY_OPTIONS, JOB_FUNCTION_OPTIONS } from '@/lib/constants/categories'
 
 type MentorProfile = {
   company: string | null
   department: string | null
   position: string | null
-  job_function: string | null
-  industry: string | null
+  job_function: string[] | null
+  industry: string[] | null
   main_duties: string | null
   mentoring_fields: string[] | null
   bio: string | null
@@ -43,6 +44,13 @@ export function MentorProfileForm({
     updateMentorProfile,
     undefined
   )
+
+  const [industry, setIndustry] = useState<string[]>(mentorProfile?.industry ?? [])
+  const [jobFunction, setJobFunction] = useState<string[]>(mentorProfile?.job_function ?? [])
+
+  function toggle(setter: React.Dispatch<React.SetStateAction<string[]>>, value: string) {
+    setter((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]))
+  }
 
   const [careerRows, setCareerRows] = useState<CareerRow[]>(
     careers.length
@@ -209,16 +217,20 @@ export function MentorProfileForm({
           error={state?.errors?.mainDuties}
           textarea
         />
-        <Field
-          label="직무"
+        <CheckboxGroup
+          label="직무 (중복 선택 가능)"
+          options={JOB_FUNCTION_OPTIONS}
           name="jobFunction"
-          defaultValue={mentorProfile?.job_function ?? ''}
+          selected={jobFunction}
+          onToggle={(v) => toggle(setJobFunction, v)}
           error={state?.errors?.jobFunction}
         />
-        <Field
-          label="산업"
+        <CheckboxGroup
+          label="산업 (중복 선택 가능)"
+          options={INDUSTRY_OPTIONS}
           name="industry"
-          defaultValue={mentorProfile?.industry ?? ''}
+          selected={industry}
+          onToggle={(v) => toggle(setIndustry, v)}
           error={state?.errors?.industry}
         />
         <Field
@@ -287,6 +299,51 @@ function Field({
           className="rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"
         />
       )}
+      {error && <p className="text-sm text-red-600">{error[0]}</p>}
+    </div>
+  )
+}
+
+function CheckboxGroup({
+  label,
+  name,
+  options,
+  selected,
+  onToggle,
+  error,
+}: {
+  label: string
+  name: string
+  options: readonly string[]
+  selected: string[]
+  onToggle: (value: string) => void
+  error?: string[]
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-sm font-medium text-neutral-700">{label}</span>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <label
+            key={option}
+            className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs ${
+              selected.includes(option)
+                ? 'border-neutral-900 bg-neutral-900 text-white'
+                : 'border-neutral-300 text-neutral-700'
+            }`}
+          >
+            <input
+              type="checkbox"
+              name={name}
+              value={option}
+              checked={selected.includes(option)}
+              onChange={() => onToggle(option)}
+              className="sr-only"
+            />
+            {option}
+          </label>
+        ))}
+      </div>
       {error && <p className="text-sm text-red-600">{error[0]}</p>}
     </div>
   )

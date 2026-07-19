@@ -10,8 +10,8 @@ type Candidate = {
   mentor: {
     company: string
     position: string
-    industry: string
-    job_function: string
+    industry: string[] | null
+    job_function: string[] | null
     display_name: string | null
   }
 }

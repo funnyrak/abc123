@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { createMatchRequest } from '@/lib/matching/actions'
 import { MatchRequestFormState } from '@/lib/validation/match-request'
+import { INDUSTRY_OPTIONS, JOB_FUNCTION_OPTIONS } from '@/lib/constants/categories'
 
 export function NewRequestForm({
   defaultIndustry,
@@ -18,8 +19,46 @@ export function NewRequestForm({
 
   return (
     <form action={action} className="flex max-w-xl flex-col gap-4">
-      <Field label="산업" name="industry" defaultValue={defaultIndustry} error={state?.errors?.industry} />
-      <Field label="직무 (선택)" name="jobFunction" defaultValue={defaultJobFunction} />
+      <div className="flex flex-col gap-1">
+        <label htmlFor="industry" className="text-sm font-medium text-neutral-700">
+          산업
+        </label>
+        <select
+          id="industry"
+          name="industry"
+          defaultValue={defaultIndustry ?? ''}
+          className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+        >
+          <option value="" disabled>
+            선택해주세요
+          </option>
+          {INDUSTRY_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        {state?.errors?.industry && <p className="text-sm text-red-600">{state.errors.industry[0]}</p>}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="jobFunction" className="text-sm font-medium text-neutral-700">
+          직무 (선택)
+        </label>
+        <select
+          id="jobFunction"
+          name="jobFunction"
+          defaultValue={defaultJobFunction ?? ''}
+          className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+        >
+          <option value="">선택 안 함</option>
+          {JOB_FUNCTION_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
       <Field label="기업 (선택)" name="companyFilter" />
       <Field
         label="희망 일정"

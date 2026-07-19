@@ -32,8 +32,8 @@ export default async function AskQuestionPage() {
     const mp = m.mentor_profiles as unknown as {
       id: string
       company: string | null
-      industry: string | null
-      job_function: string | null
+      industry: string[] | null
+      job_function: string[] | null
       display_name: string | null
     }
     return {

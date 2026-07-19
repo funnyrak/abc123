@@ -82,7 +82,13 @@ export async function createQuestion(
     .eq('project_id', qnaProject.id)
     .eq('role_in_project', 'mentor')
 
-  type QnaMentor = { id: string; user_id: string; industry: string | null; job_function: string | null; company: string | null }
+  type QnaMentor = {
+    id: string
+    user_id: string
+    industry: string[] | null
+    job_function: string[] | null
+    company: string | null
+  }
   const mentors = (qnaMentors ?? []).map((m) => m.mentor_profiles as unknown as QnaMentor)
 
   let targetMentors: QnaMentor[] = []
