@@ -9,6 +9,7 @@ const ROLE_HOME: Record<string, string> = {
 }
 
 const PUBLIC_ROUTES = ['/', '/login', '/signup']
+const PUBLIC_PREFIXES = ['/mentors']
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
@@ -40,7 +41,8 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const path = request.nextUrl.pathname
-  const isPublicRoute = PUBLIC_ROUTES.includes(path)
+  const isPublicRoute =
+    PUBLIC_ROUTES.includes(path) || PUBLIC_PREFIXES.some((prefix) => path.startsWith(prefix))
   const isApiRoute = path.startsWith('/api/')
 
   // API routes (e.g. /api/cron/*) authenticate themselves — a cron job

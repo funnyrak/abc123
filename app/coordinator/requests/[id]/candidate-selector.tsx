@@ -12,7 +12,7 @@ type Candidate = {
     position: string
     industry: string
     job_function: string
-    profiles: { name: string } | null
+    display_name: string | null
   }
 }
 
@@ -64,7 +64,7 @@ export function CandidateSelector({
               />
             )}
             <div>
-              <p className="text-sm font-medium text-neutral-900">{c.mentor?.profiles?.name ?? '이름 미등록'}</p>
+              <p className="text-sm font-medium text-neutral-900">{c.mentor?.display_name ?? '이름 미등록'}</p>
               <p className="text-xs text-neutral-500">
                 {c.mentor?.company} · {c.mentor?.position}
               </p>

@@ -1,7 +1,7 @@
-import Link from 'next/link'
 import { requireProfile } from '@/lib/auth/dal'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardShell } from '@/components/dashboard-shell'
+import { MENTOR_LIST_SELECT, MentorCard } from '@/components/mentor-card'
 
 export default async function MentorSearchPage({
   searchParams,
@@ -12,12 +12,7 @@ export default async function MentorSearchPage({
   const params = await searchParams
   const supabase = await createClient()
 
-  let query = supabase
-    .from('mentor_profiles')
-    .select(
-      'id, company, department, position, job_function, industry, mentoring_fields, region, claim_status, unclaimed_name, profiles(name)'
-    )
-    .eq('status', 'approved')
+  let query = supabase.from('mentor_profiles').select(MENTOR_LIST_SELECT).eq('status', 'approved')
 
   if (params.industry) query = query.ilike('industry', `%${params.industry}%`)
   if (params.jobFunction) query = query.ilike('job_function', `%${params.jobFunction}%`)
@@ -43,35 +38,7 @@ export default async function MentorSearchPage({
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {(mentors ?? []).map((m) => (
-          <Link
-            key={m.id}
-            href={`/coordinator/mentors/${m.id}`}
-            className="rounded-lg border border-neutral-200 bg-white p-4 hover:border-neutral-400"
-          >
-            <p className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
-              {(m.profiles as unknown as { name: string } | null)?.name ?? m.unclaimed_name ?? '이름 미등록'}
-              {m.claim_status === 'unclaimed' && (
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                  가입 대기
-                </span>
-              )}
-            </p>
-            <p className="mt-1 text-sm text-neutral-500">
-              {m.company} · {m.position} {m.department ? `· ${m.department}` : ''}
-            </p>
-            <p className="mt-1 text-xs text-neutral-400">
-              {m.industry} · {m.job_function} {m.region ? `· ${m.region}` : ''}
-            </p>
-            {m.mentoring_fields && m.mentoring_fields.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {m.mentoring_fields.map((f: string) => (
-                  <span key={f} className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] text-neutral-600">
-                    {f}
-                  </span>
-                ))}
-              </div>
-            )}
-          </Link>
+          <MentorCard key={m.id} mentor={m} href={`/coordinator/mentors/${m.id}`} showClaimBadge />
         ))}
         {(!mentors || mentors.length === 0) && (
           <p className="text-sm text-neutral-500">조건에 맞는 멘토가 없습니다.</p>

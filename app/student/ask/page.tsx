@@ -23,7 +23,7 @@ export default async function AskQuestionPage() {
   const { data: mentors } = qnaProject
     ? await supabase
         .from('project_members')
-        .select('mentor_profiles!inner(id, company, industry, job_function, profiles(name))')
+        .select('mentor_profiles!inner(id, company, industry, job_function, display_name)')
         .eq('project_id', qnaProject.id)
         .eq('role_in_project', 'mentor')
     : { data: [] }
@@ -34,11 +34,11 @@ export default async function AskQuestionPage() {
       company: string | null
       industry: string | null
       job_function: string | null
-      profiles: { name: string } | null
+      display_name: string | null
     }
     return {
       id: mp.id,
-      name: mp.profiles?.name ?? '이름 미등록',
+      name: mp.display_name ?? '이름 미등록',
       company: mp.company,
       industry: mp.industry,
       jobFunction: mp.job_function,

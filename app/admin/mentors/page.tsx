@@ -10,7 +10,7 @@ export default async function AdminMentorsPage() {
   const { data: documents } = await supabase
     .from('verification_documents')
     .select(
-      'id, file_url, status, created_at, mentor_profiles(id, company, position, user_id, profiles(name))'
+      'id, file_url, status, created_at, mentor_profiles(id, company, position, user_id, display_name)'
     )
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
@@ -33,12 +33,12 @@ export default async function AdminMentorsPage() {
             company: string | null
             position: string | null
             user_id: string
-            profiles: { name: string } | null
+            display_name: string | null
           }
           return (
             <div key={d.id} className="rounded-lg border border-neutral-200 bg-white p-4">
               <p className="text-sm font-medium text-neutral-900">
-                {mentor.profiles?.name ?? '이름 미등록'}{' '}
+                {mentor.display_name ?? '이름 미등록'}{' '}
                 <span className="text-xs text-neutral-400">
                   {mentor.company} · {mentor.position}
                 </span>

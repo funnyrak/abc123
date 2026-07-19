@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireProfile } from '@/lib/auth/dal'
 import { createClient } from '@/lib/supabase/server'
@@ -35,7 +36,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
 
   const { data: candidates } = await supabase
     .from('match_candidates')
-    .select('id, status, mentor_profiles(id, company, position, industry, job_function, profiles(name))')
+    .select('id, status, mentor_profiles(id, company, position, industry, job_function, display_name)')
     .eq('match_request_id', id)
 
   const { data: project } = await supabase
@@ -71,8 +72,10 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
         {project && (
           <p className="mt-4 rounded-md bg-neutral-100 px-4 py-3 text-sm text-neutral-700">
             확정된 프로젝트: <code className="text-xs">{project.project_code}</code> (
-            {project.scale_tier === 'managed' ? '10명 이상 · 로스터 페이지 대상' : '1~2명'}) — 프로젝트 룸은
-            Phase 3에서 제공됩니다.
+            {project.scale_tier === 'managed' ? '10명 이상 · 로스터 페이지 대상' : '1~2명'}) —{' '}
+            <Link href={`/projects/${project.id}`} className="underline">
+              프로젝트 룸 바로가기
+            </Link>
           </p>
         )}
 
@@ -88,7 +91,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
               position: string
               industry: string
               job_function: string
-              profiles: { name: string } | null
+              display_name: string | null
             },
           }))}
           disabled={request.status !== 'recruiting'}
