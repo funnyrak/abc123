@@ -4,13 +4,14 @@ import { useActionState, useState, useTransition } from 'react'
 import { createQuestion, searchSimilarQuestions, type SimilarQuestion } from '@/lib/qna/actions'
 import { QuestionFormState } from '@/lib/validation/question'
 import type { Eligibility } from '@/lib/qna/eligibility'
+import { INDUSTRY_OPTIONS, JOB_FUNCTION_OPTIONS } from '@/lib/constants/categories'
 
 type MentorOption = {
   id: string
   name: string
   company: string | null
-  industry: string | null
-  jobFunction: string | null
+  industry: string[] | null
+  jobFunction: string[] | null
 }
 
 const ELIGIBILITY_LABEL: Record<string, string> = {
@@ -93,10 +94,27 @@ export function AskQuestionForm({
               ))}
             </select>
           </div>
+        ) : scopeType === 'industry' || scopeType === 'job_function' ? (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="scopeValue" className="text-sm font-medium text-neutral-700">
+              {scopeType === 'industry' ? '산업' : '직무'} 선택
+            </label>
+            <select
+              id="scopeValue"
+              name="scopeValue"
+              className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            >
+              {(scopeType === 'industry' ? INDUSTRY_OPTIONS : JOB_FUNCTION_OPTIONS).map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
         ) : (
           <div className="flex flex-col gap-1">
             <label htmlFor="scopeValue" className="text-sm font-medium text-neutral-700">
-              {scopeType === 'industry' ? '산업' : scopeType === 'job_function' ? '직무' : '기업'} 키워드
+              기업 키워드
             </label>
             <input
               id="scopeValue"

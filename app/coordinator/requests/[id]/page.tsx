@@ -89,8 +89,8 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
             mentor: c.mentor_profiles as unknown as {
               company: string
               position: string
-              industry: string
-              job_function: string
+              industry: string[] | null
+              job_function: string[] | null
               display_name: string | null
             },
           }))}

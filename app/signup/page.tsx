@@ -5,9 +5,10 @@ import { SignupForm } from './signup-form'
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ claim?: string }>
+  searchParams: Promise<{ claim?: string; role?: string }>
 }) {
-  const { claim } = await searchParams
+  const { claim, role } = await searchParams
+  const defaultRole = role === 'coordinator' || role === 'student' || role === 'mentor' ? role : undefined
 
   let claimedMentor: { name: string; company: string | null } | null = null
   if (claim) {
@@ -35,7 +36,7 @@ export default async function SignupPage({
       ) : (
         <p className="mt-1 text-sm text-neutral-500">역할을 선택하고 가입을 진행해주세요.</p>
       )}
-      <SignupForm claimToken={claim} prefilledName={claimedMentor?.name} />
+      <SignupForm claimToken={claim} prefilledName={claimedMentor?.name} defaultRole={defaultRole} />
       <p className="mt-6 text-center text-sm text-neutral-500">
         이미 계정이 있으신가요?{' '}
         <Link href="/login" className="font-medium text-neutral-900 underline">

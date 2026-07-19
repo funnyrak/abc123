@@ -1,8 +1,9 @@
 import * as z from 'zod'
+import { INDUSTRY_OPTIONS, JOB_FUNCTION_OPTIONS } from '@/lib/constants/categories'
 
 export const MatchRequestSchema = z.object({
-  industry: z.string().trim().min(1, { error: '산업을 입력해주세요.' }),
-  jobFunction: z.string().trim().optional(),
+  industry: z.enum(INDUSTRY_OPTIONS, { error: '산업을 선택해주세요.' }),
+  jobFunction: z.enum(JOB_FUNCTION_OPTIONS).optional().or(z.literal('')),
   companyFilter: z.string().trim().optional(),
   requestedSchedule: z.string().trim().min(1, { error: '희망 일정을 입력해주세요.' }),
   format: z.enum(['online', 'offline'], { error: '진행 방식을 선택해주세요.' }),

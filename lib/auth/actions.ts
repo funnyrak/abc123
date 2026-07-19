@@ -26,7 +26,7 @@ export async function signup(
     email: formData.get('email'),
     phone: formData.get('phone'),
     password: formData.get('password'),
-    orgCode: formData.get('orgCode') || undefined,
+    orgName: formData.get('orgName') || undefined,
     claimToken: formData.get('claimToken') || undefined,
   })
 
@@ -34,21 +34,34 @@ export async function signup(
     return { errors: validated.error.flatten().fieldErrors }
   }
 
-  const { role, name, email, phone, password, orgCode, claimToken } = validated.data
+  const { role, name, email, phone, password, orgName, claimToken } = validated.data
   const supabase = await createClient()
 
+  // No pre-registered school/org code needed anymore — coordinators and
+  // students just type their org's name, and we reuse an existing org row
+  // with that name or create one on the fly.
   let orgId: string | null = null
-  if (role !== 'mentor') {
-    const { data: org } = await supabase
+  if (role !== 'mentor' && orgName) {
+    const { data: existingOrg } = await supabase
       .from('organizations')
       .select('id')
-      .eq('org_code', orgCode)
+      .ilike('name', orgName)
       .maybeSingle()
 
-    if (!org) {
-      return { errors: { orgCode: ['등록되지 않은 학교/기관 코드입니다.'] } }
+    if (existingOrg) {
+      orgId = existingOrg.id
+    } else {
+      const { data: newOrg, error: orgError } = await supabase
+        .from('organizations')
+        .insert({ name: orgName, org_code: `org-${crypto.randomUUID().slice(0, 8)}` })
+        .select('id')
+        .single()
+
+      if (orgError || !newOrg) {
+        return { message: orgError?.message ?? '학교/기관 등록에 실패했습니다.' }
+      }
+      orgId = newOrg.id
     }
-    orgId = org.id
   }
 
   const { data, error } = await supabase.auth.signUp({

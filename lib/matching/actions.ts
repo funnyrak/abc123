@@ -77,9 +77,9 @@ export async function createMatchRequest(
     .select('id, user_id')
     .eq('status', 'approved')
     .eq('claim_status', 'claimed')
-    .ilike('industry', `%${industry}%`)
+    .overlaps('industry', [industry])
 
-  if (jobFunction) mentorQuery = mentorQuery.ilike('job_function', `%${jobFunction}%`)
+  if (jobFunction) mentorQuery = mentorQuery.overlaps('job_function', [jobFunction])
   if (companyFilter) mentorQuery = mentorQuery.ilike('company', `%${companyFilter}%`)
 
   const { data: matchingMentors } = await mentorQuery

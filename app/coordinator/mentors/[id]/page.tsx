@@ -38,7 +38,7 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
         />
 
         <Link
-          href={`/coordinator/requests/new?industry=${encodeURIComponent(mentor.industry ?? '')}&jobFunction=${encodeURIComponent(mentor.job_function ?? '')}`}
+          href={`/coordinator/requests/new?industry=${encodeURIComponent(mentor.industry?.[0] ?? '')}&jobFunction=${encodeURIComponent(mentor.job_function?.[0] ?? '')}`}
           className="mt-6 inline-block rounded-md bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white"
         >
           이 조건으로 섭외 요청 만들기

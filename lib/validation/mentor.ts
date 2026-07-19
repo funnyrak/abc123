@@ -1,11 +1,16 @@
 import * as z from 'zod'
+import { INDUSTRY_OPTIONS, JOB_FUNCTION_OPTIONS } from '@/lib/constants/categories'
 
 export const MentorProfileSchema = z.object({
   company: z.string().trim().min(1, { error: '현재 소속(기업)을 입력해주세요.' }),
   department: z.string().trim().optional(),
   position: z.string().trim().min(1, { error: '직책/직급을 입력해주세요.' }),
-  jobFunction: z.string().trim().min(1, { error: '직무를 입력해주세요.' }),
-  industry: z.string().trim().min(1, { error: '산업을 입력해주세요.' }),
+  jobFunction: z
+    .array(z.enum(JOB_FUNCTION_OPTIONS))
+    .min(1, { error: '직무를 1개 이상 선택해주세요.' }),
+  industry: z
+    .array(z.enum(INDUSTRY_OPTIONS))
+    .min(1, { error: '산업을 1개 이상 선택해주세요.' }),
   mainDuties: z.string().trim().min(1, { error: '주요 업무 내용을 입력해주세요.' }),
   mentoringFields: z
     .string()
